@@ -1,0 +1,8 @@
+*.pyc
+*~
+__pycache__
+db.sqlite3
+settings.py
+asgi.py
+wsgi.py
+/kalendar/__init__.py
