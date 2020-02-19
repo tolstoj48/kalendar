@@ -3,12 +3,12 @@
 from datetime import datetime
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
-from django.views import generic
+from django.views.generic import ListView
 from django.utils.safestring import mark_safe
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.views.generic.edit import DeleteView
+from django.views.generic.edit import DeleteView, CreateView
 
 from .forms import EventForm
 from .models import *
@@ -16,7 +16,7 @@ from .utils import Calendar
 import datetime
 import calendar
 
-class CalendarView(LoginRequiredMixin, generic.ListView):
+class CalendarView(LoginRequiredMixin, ListView):
     model = Event
     template_name = 'calendar.html'
 
@@ -28,6 +28,8 @@ class CalendarView(LoginRequiredMixin, generic.ListView):
         d = get_date(self.request.GET.get('month', None))
         context['prev_month'] = prev_month(d)
         context['next_month'] = next_month(d)
+
+        context['months_for_loop'] = range(1, 12)
 
         # Instantiate our calendar class with today's year and date
         cal = Calendar(d.year, d.month)
@@ -68,11 +70,50 @@ def event(request, event_id=None):
     form = EventForm(request.POST or None, instance=instance)
     if request.POST and form.is_valid():
         form.save()
-        return HttpResponseRedirect(reverse('cal:calendar'))
+        first_part_link = reverse('cal:calendar')
+        str_for_link = "?month=" + str(instance.start_time)[:7]
+        return HttpResponseRedirect(first_part_link + str_for_link)
     return render(request, 'event.html', {'form': form})
 
 
 class EventDeleteView(LoginRequiredMixin, DeleteView):
     model = Event
     template_name = 'event_delete.html'
-    success_url = reverse_lazy('cal:calendar')
+    #success_url = reverse_lazy('cal:calendar')
+    
+    def get_success_url(self):
+        id_object = self.kwargs['pk']
+        instance = get_object_or_404(Event, pk=id_object)
+        first_part_link = reverse('cal:calendar')
+        second_part_link = "?month=" + str(instance.start_time)[:7]
+        return first_part_link + second_part_link
+
+class EventNewFromCalView(LoginRequiredMixin, CreateView):
+    model = Event
+    template_name = 'event.html'
+    fields = ['title','type_of_events', 'description', 'start_time', 'end_time', 'user', ]
+
+    def get_initial(self, **kwargs):
+        days, months, years = self.kwargs['datum'][:2], self.kwargs['datum'][2:4], self.kwargs['datum'][4:]
+        initial_str_for_dates = days + "." + months + "." + years + " 00:00"
+        return {
+            'start_time': initial_str_for_dates,
+            'end_time': initial_str_for_dates,
+            'user': self.request.user,
+            }
+
+    def get_success_url(self):
+        months, years = self.kwargs['datum'][2:4], self.kwargs['datum'][4:]
+        first_part_link = reverse('cal:calendar')
+        str_for_link = "?month=" + years + "-" + months
+        return first_part_link + str_for_link
+
+class EventChoiceListView(LoginRequiredMixin, ListView):
+    models          = Event
+    template_name   = 'event_choice_list.html'
+    context_object_name = 'events'
+
+    def get_queryset(self):
+        volba = self.kwargs['choice']
+        new_context = Event.objects.filter(type_of_events=volba)
+        return new_context

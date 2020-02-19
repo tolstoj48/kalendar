@@ -1,26 +1,24 @@
-<!-- cal/templates/cal/event.html -->
-
+<!-- templates/event.html -->
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% block title %}
 	Událost
 {% endblock %}
 {% block content %}
-  	<div class='jumbotron'>
-	    <div class='row'>
-	        <div class="col text-center">
-  				<a class="btn btn-success btn-lg btn-block" href="{% url 'cal:calendar' %}"> Kalendář </a>
-  			</div>
+  <div class='jumbotron'>
+	   <div class='row'>
+	    <div class="col text-center">
+  		  <a class="btn btn-dark btn-lg" href="{% url 'cal:calendar' %}"> Zpět na kalendář </a>
   		</div>
   	</div>
-
+  </div>
 	<form method="post">
-  		{% csrf_token %}
-    	{{form | crispy}}
-    	<div class='row'>
-    		<div class="col text-center">
-   				<button type="submit" class="btn btn-success btn-lg btn-block"> Uložit </button>
-   			</div>
+  	{% csrf_token %}
+    {{form | crispy}}
+    <div class='row'>
+    	<div class="col text-center">
+   			<button type="submit" class="btn btn-success btn-lg btn-block"> Uložit </button>
    		</div>
+   	</div>
 	</form>
 {% endblock %}

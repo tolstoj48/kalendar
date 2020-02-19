@@ -9,15 +9,39 @@
 	        	<h3> Rodinný kalendář </h3>
 	        	<br>
 	        	{% if user.is_authenticated %}
-    				<a class="btn btn-warning" href="{% url 'logout' %}">Odhlásit</a></p> 
+    				<a class="btn btn-dark" href="{% url 'logout' %}">Odhlásit</a></p> 
   				{% endif %}
-				<a class="btn btn-info" href="{% url 'cal:calendar' %}?{{prev_month }}"> Předchozí měsíc </a> 
-				<a class="btn btn-info" href="{% url 'cal:event_new' %}"> Založit novou událost </a>
-				<a class="btn btn-info" href="{% url 'cal:calendar' %}?{{next_month }}"> Příští měsíc </a>
+				<a class="btn btn-dark" href="{% url 'cal:calendar' %}?{{prev_month }}"> Předchozí měsíc </a> 
+				<a class="btn btn-dark" href="{% url 'cal:event_new' %}"> Založit novou událost </a>
+				<a class="btn btn-dark" href="{% url 'cal:calendar' %}?{{next_month }}"> Další měsíc </a>
+				<br><br>
+				<b><u>Kategorie:</u></b> 
+				<a class='btn btn-primary' href='{% url "cal:event_choice_list" choice="narozeniny"%}'> narozeniny </a>
+				<a class='btn btn-secondary' href='{% url "cal:event_choice_list" choice="svátek"%}'> svátek </a>
+				<a class='btn btn-success' href='{% url "cal:event_choice_list" choice="dovolená"%}'> dovolená </a>
+				<a class='btn btn-info' href='{% url "cal:event_choice_list" choice="doctor"%}'> doctor </a>
+				<a class='btn btn-warning' href='{% url "cal:event_choice_list" choice="other"%}'> other </a>
+				<br><br>
+				<b><u>Měsíce tohoto roku:</u></b>
+				{% for i in months_for_loop %}
+					<a id ="p{{ i }}" href="" class="btn btn-danger"></a>
+				{% endfor %}
 			</div>
 		   </div>
 		</div>
 	</div>
 	<br>
 	{{calendar }}
+
+<script>
+	var today = new Date();
+	var i;
+	for (i = 1; i < 13; i++) {
+ 		var date = "?month=" + today.getFullYear() + '-' + (today.getMonth() + i);
+		var identification = "p" + i
+		document.getElementById(identification).href = date;
+		document.getElementById(identification).innerHTML = today.getMonth() + i
+	}
+</script>
+
 {% endblock %}
