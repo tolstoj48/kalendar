@@ -4,6 +4,7 @@
 	<h2>Smazání události</h2>
 	<form action="" method="post">{% csrf_token %}
 		<p>Určitě chceš smáznout událost "{{ event.title }} v termínu {{ event.start_time }}"?</p>
-		<input type="submit" value="Smáznout" />
+		<input class="btn btn-dark btn-lg" type="submit" value="Smáznout" />
+		<a class="btn btn-dark btn-lg" href="{% url 'cal:calendar' %}"> Ne </a>
 	</form>
 {% endblock %}

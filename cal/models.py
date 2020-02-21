@@ -15,7 +15,6 @@ class Event(models.Model):
     ]
     
     type_of_events      = models.CharField(max_length=30, choices = TYPES, default="other")
-    number_of_repeats   = models.IntegerField(default=1)
     description         = models.TextField(blank=True)
     start_time          = models.DateTimeField()
     end_time            = models.DateTimeField()
