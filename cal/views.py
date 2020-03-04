@@ -74,16 +74,16 @@ class EventDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'event_delete.html'
     
     def get_success_url(self):
-        id_object = self.kwargs['pk']
-        instance = get_object_or_404(Event, pk=id_object)
+        id_object       = self.kwargs['pk']
+        instance        = get_object_or_404(Event, pk=id_object)
         first_part_link = reverse('cal:calendar')
-        second_part_link = "?month=" + str(instance.start_time)[:7]
+        second_part_link= "?month=" + str(instance.start_time)[:7]
         return first_part_link + second_part_link
 
 class EventNewFromCalView(LoginRequiredMixin, CreateView):
-    model = Event
-    template_name = 'event.html'
-    fields = ['title','type_of_events', 'description', 'start_time', 'end_time', 'user', ]
+    model           = Event
+    template_name   = 'event.html'
+    fields          = ['title','type_of_events', 'description', 'start_time', 'end_time', 'user', ]
 
     def get_initial(self, **kwargs):
         days, months, years = self.kwargs['datum'][:2], self.kwargs['datum'][2:4], self.kwargs['datum'][4:]
@@ -101,11 +101,22 @@ class EventNewFromCalView(LoginRequiredMixin, CreateView):
         return first_part_link + str_for_link
 
 class EventChoiceListView(LoginRequiredMixin, ListView):
-    models          = Event
-    template_name   = 'event_choice_list.html'
+    models              = Event
+    template_name       = 'event_choice_list.html'
     context_object_name = 'events'
 
     def get_queryset(self):
         volba = self.kwargs['choice']
         new_context = Event.objects.filter(type_of_events=volba)
+        return new_context
+
+class EventComingListView(LoginRequiredMixin, ListView):
+    models              = Event
+    template_name       = 'event_coming_list.html'
+    context_object_name = 'coming_events'
+
+    def get_queryset(self):
+        startdate = datetime.date.today()
+        enddate = startdate + datetime.timedelta(days=60)
+        new_context = Event.objects.filter(start_time__range=[startdate, enddate]).order_by('start_time')
         return new_context

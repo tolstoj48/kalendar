@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^event/edit/(?P<event_id>\d+)/$', views.event, name='event_edit'),
     path('delete_event/<int:pk>/', views.EventDeleteView.as_view(), name = 'event_delete'),
     path('list_events/<str:choice>/', views.EventChoiceListView.as_view(), name = 'event_choice_list'),
+    path('event_coming_list/', views.EventComingListView.as_view(), name = 'event_coming_list'),
 ]

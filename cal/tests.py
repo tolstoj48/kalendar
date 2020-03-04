@@ -29,11 +29,13 @@ def stringed_date():
 	stringed_date = str(datetime.date.today().day) + stringed_month + str(datetime.date.today().year)
 	return stringed_date
 
+def create_event_object(user):
+	return Event.objects.create(title="Zde", start_time=datetime.datetime.now(), end_time=datetime.datetime.now(), user=user)
 
 class EventModelTest(TestCase):
 	def setUp(self):
 		user = setup_user()
-		Event.objects.create(title="Zde", start_time=datetime.datetime.now(), end_time=datetime.datetime.now(), user=user)
+		create_event_object(user)
 
 	def test_event_content(self):
 		event = Event.objects.get(id=1)
@@ -71,7 +73,7 @@ class CalendarViewTests(TestCase):
 class EventNewViewTest(TestCase):
 	def setUp(self):
 		user = setup_user()
-		Event.objects.create(title="Zde", start_time=datetime.datetime.now(), end_time=datetime.datetime.now(), user=user)
+		create_event_object(user)
 		login(self.client)
 
 	def test_event_new_exists_proper_url(self):
@@ -90,7 +92,7 @@ class EventNewViewTest(TestCase):
 class EventNewFromCalViewTest(TestCase):
 	def setUp(self):
 		user = setup_user()
-		Event.objects.create(title="Zde", start_time=datetime.datetime.now(), end_time=datetime.datetime.now(), user=user)
+		create_event_object(user)
 		login(self.client)
 
 	def test_event_new_exists_proper_url(self):
@@ -112,7 +114,7 @@ class EventNewFromCalViewTest(TestCase):
 class EventEditViewTest(TestCase):
 	def setUp(self):
 		user = setup_user()
-		Event.objects.create(title="Zde", start_time=datetime.datetime.now(), end_time=datetime.datetime.now(), user=user)
+		create_event_object(user)
 		login(self.client)
 
 	def test_event_detail_exists_proper_url(self):
@@ -131,18 +133,18 @@ class EventEditViewTest(TestCase):
 class EventDeleteViewTest(TestCase):
 	def setUp(self):
 		user = setup_user()
-		Event.objects.create(title="Zde", start_time=datetime.datetime.now(), end_time=datetime.datetime.now(), user=user)
+		create_event_object(user)
 		login(self.client)
 
 	def test_event_delete(self):
 		post_response = self.client.post(reverse('cal:event_delete', args=(1,)), follow=True)
-		self.assertRedirects(post_response, '/calendar/?month=2020-02', status_code=302)
+		self.assertRedirects(post_response, '/calendar/?month=2020-03', status_code=302)
 		self.assertFalse(Event.objects.filter(pk=1).exists())
 
 class EventChoiceListViewTest(TestCase):
 	def setUp(self):
 		user = setup_user()
-		Event.objects.create(title="Zde", start_time=datetime.datetime.now(), end_time=datetime.datetime.now(), user=user)
+		create_event_object(user)
 		login(self.client)
 
 	def test_list_event_exists_proper_url(self):
@@ -157,3 +159,22 @@ class EventChoiceListViewTest(TestCase):
 		response = self.client.get(reverse('cal:event_choice_list', kwargs={'choice': 'other'}), follow=True)
 		self.assertEqual(response.status_code, 200)
 		self.assertTemplateUsed(response, 'event_choice_list.html')
+
+class EventComingListViewTest(TestCase):
+	def setUp(self):
+		user = setup_user()
+		create_event_object(user)
+		login(self.client)
+
+	def test_list_event_exists_proper_url(self):
+		response = self.client.get('/event_coming_list/')
+		self.assertEqual(response.status_code, 200)
+
+	def test_list_event_url_by_name(self):
+		response = self.client.get(reverse('cal:event_coming_list'))
+		self.assertEqual(response.status_code, 200)
+
+	def test_list_event_uses_correct_template(self):
+		response = self.client.get(reverse('cal:event_coming_list'))
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'event_coming_list.html')
